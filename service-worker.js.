@@ -1,4 +1,4 @@
-```javascript
+javascript
 const CACHE_NAME = "partners-finance-v1";
 const OFFLINE_URL = "./offline.html";
 
@@ -38,4 +38,3 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
-```
