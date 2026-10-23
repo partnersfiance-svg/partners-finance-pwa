@@ -1,5 +1,4 @@
-javascript
-const CACHE_NAME = "partners-finance-v1";
+const CACHE_NAME = "partners-finance-v2";
 const OFFLINE_URL = "./offline.html";
 
 self.addEventListener("install", (event) => {
@@ -14,7 +13,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
+          .filter((key) => key.startsWith("partners-finance-") && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     )
@@ -23,18 +22,12 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  if (
-    event.request.method !== "GET" ||
-    url.origin !== self.location.origin
-  ) {
-    return;
-  }
-
-  if (url.pathname.endsWith("/offline.html")) {
+  if (event.request.mode === "navigate") {
     event.respondWith(
-      caches.match(OFFLINE_URL).then((response) => response || fetch(event.request))
+      fetch(event.request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return (await cache.match(OFFLINE_URL)) || Response.error();
+      })
     );
   }
 });
